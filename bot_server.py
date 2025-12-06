@@ -23,9 +23,9 @@ SECRET_PASSWORD = "YOUR_SECRET_PASSWORD"
 @app.route('/')
 def home():
     return {'status': 'Bot server is running'}, 200
-
-@app.route('/webapp', methods=['GET', 'POST'])
+    @app.route('/webapp', methods=['GET', 'POST', 'HEAD'])
 def handle_webapp():
+
     if request.method == 'GET':
         try:
             with open('index.html', 'r', encoding='utf-8') as f:
@@ -103,3 +103,4 @@ def health():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
+
