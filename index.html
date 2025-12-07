@@ -567,7 +567,11 @@
                     <div class="result-title" id="largeRoomLabel">⚠️ РЕКОМЕНДАЦИЯ ДЛЯ БОЛЬШОГО ПОМЕЩЕНИЯ</div>
                     <div class="result-details" id="largeRoomDetails">
                         <p id="largeRoomText"></p>
+<<<<<<< HEAD
                         <p style="margin-top: 12px; font-weight: 600;"><span id="recPowerLabel2">Рекомендуемая мощность:</span></p>
+=======
+                        <p style="margin-top: 12px; font-weight: 600;" id="recPowerLabel2">Рекомендуемая мощность:</p>
+>>>>>>> Add project docs and helper files
                         <p style="margin-top: 6px;"><span id="semiPower">14</span> <span id="kwUnit4">кВт</span></p>
                         <p style="margin-top: 12px; font-size: 14px; line-height: 1.6; color: #c00;" id="semiIndText">⚠️ Бытовых настенных кондиционеров такой мощности не бывает.</p>
                         <p style="margin-top: 8px; font-size: 14px; line-height: 1.6;" id="semiIndRec">Рекомендуем рассмотреть полупромышленные кондиционеры соответствующей мощности: канальные, кассетные, колонные или напольно-потолочные типы.</p>
@@ -599,13 +603,20 @@
     </div>
 
     <script>
+<<<<<<< HEAD
+=======
+        // ПЕРЕВОДЫ
+>>>>>>> Add project docs and helper files
         const translations = {
             ru: {
                 yourCalcLabel: '📊 Ваш расчет:',
                 reqPowerLabelText: 'Требуемая мощность:',
                 recRangeLabelText: 'Рекомендуемый диапазон:',
+<<<<<<< HEAD
                 modelLabelSmall: 'Модель',
                 modelLabelLarge: 'Мощность ≥',
+=======
+>>>>>>> Add project docs and helper files
                 welcomeTitle: '🌊 AirCalc',
                 welcomeSubtitle: 'Расчет мощности кондиционера',
                 welcomeDesc: 'Профессиональный калькулятор поможет вам выбрать идеальную модель кондиционера для вашего помещения',
@@ -651,14 +662,20 @@
                 recText: '✓ Эта модель подходит для Ваших условий. Для точного расчета мощности, пожалуйста, обратитесь к специалистам.',
                 largeRoomLabel: '⚠️ РЕКОМЕНДАЦИЯ ДЛЯ БОЛЬШОГО ПОМЕЩЕНИЯ',
                 recPowerLabel2: 'Рекомендуемая мощность:',
+<<<<<<< HEAD
                 largeRoomForAreaText: 'Для помещения площадью',
                 largeRoomRequiresPowerText: 'требуется мощность',
+=======
+>>>>>>> Add project docs and helper files
                 semiIndText: '⚠️ Бытовых настенных кондиционеров такой мощности не бывает.',
                 semiIndRec: 'Рекомендуем рассмотреть полупромышленные кондиционеры соответствующей мощности: канальные, кассетные, колонные или напольно-потолочные типы.',
                 calcDetailsBtn: '▼ Как мы рассчитали?',
                 tipsLabel: '💡 РЕКОМЕНДАЦИИ ЭКСПЕРТОВ:',
+<<<<<<< HEAD
                 modelText: 'Модель',
                 powerText: 'Мощность ≥',
+=======
+>>>>>>> Add project docs and helper files
                 tip1: 'Внегласное правило: в среднем 1 кВт на 10 м² площади',
                 tip2: 'Запас мощности 10-15% компенсирует экстремальную жару',
                 tip3: 'Для кухни выбирайте на 20-30% мощнее обычного',
@@ -671,8 +688,11 @@
                 yourCalcLabel: '📊 Your Calculation:',
                 reqPowerLabelText: 'Required Power:',
                 recRangeLabelText: 'Recommended Range:',
+<<<<<<< HEAD
                 modelLabelSmall: 'Model',
                 modelLabelLarge: 'Power ≥',
+=======
+>>>>>>> Add project docs and helper files
                 welcomeTitle: '🌊 AirCalc',
                 welcomeSubtitle: 'Air Conditioner Power Calculator',
                 welcomeDesc: 'A professional calculator to help you choose the ideal air conditioner model for your premises',
@@ -717,14 +737,20 @@
                 recRangeLabel: 'Recommended Range:',
                 largeRoomLabel: '⚠️ RECOMMENDATION FOR LARGE PREMISES',
                 recPowerLabel2: 'Recommended Power:',
+<<<<<<< HEAD
                 largeRoomForAreaText: 'For a room with an area of',
                 largeRoomRequiresPowerText: 'required power',
+=======
+>>>>>>> Add project docs and helper files
                 semiIndText: '⚠️ Such power capacity wall-mounted air conditioners do not exist.',
                 semiIndRec: 'We recommend considering semi-industrial air conditioners of appropriate power: channel, cassette, column, or floor-ceiling types.',
                 calcDetailsBtn: '▼ How did we calculate?',
                 tipsLabel: '💡 EXPERT RECOMMENDATIONS:',
+<<<<<<< HEAD
                 modelText: 'Model',
                 powerText: 'Power ≥',
+=======
+>>>>>>> Add project docs and helper files
                 tip1: 'General rule: approximately 1 kW per 10 m² of area',
                 tip2: 'Power margin of 10-15% compensates for extreme heat',
                 tip3: 'For kitchens, choose 20-30% more powerful than usual',
@@ -736,6 +762,10 @@
             }
         };
 
+<<<<<<< HEAD
+=======
+        // Функция смены языка
+>>>>>>> Add project docs and helper files
         function switchLanguage(lang) {
             localStorage.setItem('language', lang);
             updateLanguage(lang);
@@ -743,16 +773,29 @@
 
         function updateLanguage(lang) {
             const t = translations[lang];
+<<<<<<< HEAD
+=======
+            
+            // Helper function to safely set text content
+>>>>>>> Add project docs and helper files
             const setText = (id, text) => {
                 const el = document.getElementById(id);
                 if (el && text) el.textContent = text;
             };
+<<<<<<< HEAD
+=======
+            
+            // Helper function to safely set placeholder
+>>>>>>> Add project docs and helper files
             const setPlaceholder = (id, text) => {
                 const el = document.getElementById(id);
                 if (el && text) el.placeholder = text;
             };
             
+<<<<<<< HEAD
             setText('powerLabel', t.powerLabel);
+=======
+>>>>>>> Add project docs and helper files
             setText('welcomeTitle', t.welcomeTitle);
             setText('welcomeSubtitle', t.welcomeSubtitle);
             setText('welcomeDesc', t.welcomeDesc);
@@ -789,6 +832,10 @@
             setText('resultsTitle', t.resultsTitle);
             setText('recModelLabel', t.recModelLabel);
             setText('btuLabel', t.btuLabel);
+<<<<<<< HEAD
+=======
+            setText('powerLabel', t.powerLabel);
+>>>>>>> Add project docs and helper files
             document.querySelectorAll('#kwUnit, #kwUnit2, #kwUnit3, #kwUnit4').forEach(el => {
                 if (el && t.kwUnit) el.textContent = t.kwUnit;
             });
@@ -799,8 +846,11 @@
             setText('recText', t.recText);
             setText('largeRoomLabel', t.largeRoomLabel);
             setText('recPowerLabel2', t.recPowerLabel2);
+<<<<<<< HEAD
             setText('modelText', t.modelText);
             setText('powerText', t.powerText);
+=======
+>>>>>>> Add project docs and helper files
             setText('semiIndText', t.semiIndText);
             setText('semiIndRec', t.semiIndRec);
             setText('calcDetailsBtn', t.calcDetailsBtn);
@@ -812,6 +862,7 @@
             setText('tip5', t.tip5);
             setText('newCalcBtn', t.newCalcBtn);
             setText('shareBtn', t.shareBtn);
+<<<<<<< HEAD
             
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 if (btn) btn.classList.remove('active');
@@ -834,6 +885,25 @@
             }
         }
 
+=======
+            setText('yourCalcLabel', t.yourCalcLabel);
+            setText('reqPowerLabel', t.reqPowerLabel);
+            setText('recRangeLabel', t.recRangeLabel);
+            
+            // Обновляем активную кнопку
+            try {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    if (btn) btn.classList.remove('active');
+                });
+                const activeLangBtn = document.querySelector(`[onclick="switchLanguage('${lang}')"]`);
+                if (activeLangBtn) activeLangBtn.classList.add('active');
+            } catch (e) {
+                console.warn('Language button update failed:', e);
+            }
+        }
+
+        // AC Models
+>>>>>>> Add project docs and helper files
         const acModelsBytovye = [
             {marking: 20, model: 7, btu: 7000, kw: 2.1, area: 20},
             {marking: 25, model: 9, btu: 9000, kw: 2.6, area: 25},
@@ -851,6 +921,10 @@
 
         function trackEvent(eventName, params = {}) {
             console.log(`📊 Событие: ${eventName}`, params);
+<<<<<<< HEAD
+=======
+            
+>>>>>>> Add project docs and helper files
             const eventData = {
                 event: eventName,
                 timestamp: new Date().toISOString(),
@@ -858,11 +932,21 @@
                 userId: tg.initDataUnsafe?.user?.id || 'unknown',
                 username: tg.initDataUnsafe?.user?.username || 'unknown'
             };
+<<<<<<< HEAD
+=======
+            
+            // Отправляем на Flask сервер
+>>>>>>> Add project docs and helper files
             fetch('/webapp', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(eventData)
             }).catch(err => console.error('Tracking error:', err));
+<<<<<<< HEAD
+=======
+            
+            // И в Telegram Web App (если в Telegram)
+>>>>>>> Add project docs and helper files
             if (tg && tg.sendData) {
                 tg.sendData(JSON.stringify(eventData));
             }
@@ -880,6 +964,10 @@
 
         function calculate() {
             try {
+<<<<<<< HEAD
+=======
+                // Safely get all input elements
+>>>>>>> Add project docs and helper files
                 const areaEl = document.getElementById('area');
                 const heightEl = document.getElementById('height');
                 const sunlightEl = document.querySelector('input[name="sunlight"]:checked');
@@ -887,6 +975,10 @@
                 const activityEl = document.querySelector('input[name="activity"]:checked');
                 const otherPowerEl = document.getElementById('otherPower');
 
+<<<<<<< HEAD
+=======
+                // Validate all elements exist
+>>>>>>> Add project docs and helper files
                 if (!areaEl || !heightEl || !sunlightEl || !peopleEl || !activityEl || !otherPowerEl) {
                     throw new Error('Missing required form elements');
                 }
@@ -898,6 +990,10 @@
                 const activity = parseFloat(activityEl.value);
                 const otherPower = parseFloat(otherPowerEl.value) || 0;
 
+<<<<<<< HEAD
+=======
+                // Validate values
+>>>>>>> Add project docs and helper files
                 if (isNaN(area) || isNaN(height) || isNaN(sunlight) || isNaN(people) || isNaN(activity)) {
                     throw new Error('Invalid input values');
                 }
@@ -905,25 +1001,57 @@
                 console.log('Calculation started:', { area, height, sunlight, people, activity, otherPower });
                 trackEvent('calculation_started', { area, height, people });
 
+<<<<<<< HEAD
                 const Q1 = (area * height * sunlight) / 1000;
                 const Q2 = people * activity;
+=======
+                // Calculate Q1 (Room)
+                const Q1 = (area * height * sunlight) / 1000;
+                console.log('Q1:', Q1);
+
+                // Calculate Q2 (People)
+                const Q2 = people * activity;
+                console.log('Q2:', Q2);
+
+                // Calculate Q3 (Devices)
+>>>>>>> Add project docs and helper files
                 let Q3 = 0;
                 document.querySelectorAll('.device:checked').forEach(device => {
                     Q3 += parseFloat(device.dataset.power);
                 });
                 Q3 += (otherPower * 0.3) / 1000;
+<<<<<<< HEAD
 
                 let Q = Q1 + Q2 + Q3;
                 document.querySelectorAll('.factor:checked').forEach(factor => {
                     Q *= (1 + parseFloat(factor.dataset.multiplier));
                 });
 
+=======
+                console.log('Q3:', Q3);
+
+                // Calculate Q (Total)
+                let Q = Q1 + Q2 + Q3;
+                console.log('Q (before factors):', Q);
+
+                // Apply Additional Factors
+                document.querySelectorAll('.factor:checked').forEach(factor => {
+                    Q *= (1 + parseFloat(factor.dataset.multiplier));
+                });
+                console.log('Q (after factors):', Q);
+
+                // Calculate Range
+>>>>>>> Add project docs and helper files
                 const Q_min = Q * 0.95;
                 const Q_max = Q * 1.15;
 
                 let recommended;
 
                 if (Q <= 10.6) {
+<<<<<<< HEAD
+=======
+                    // Ищем бытовой кондиционер (настенный)
+>>>>>>> Add project docs and helper files
                     recommended = acModelsBytovye[0];
                     for (let model of acModelsBytovye) {
                         if (model.kw >= Q_min) {
@@ -932,20 +1060,32 @@
                         }
                     }
                     
+<<<<<<< HEAD
+=======
+                    // Display Results - БЫТОВАЯ МОДЕЛЬ
+>>>>>>> Add project docs and helper files
                     const modelNameEl = document.getElementById('modelName');
                     const modelBTUEl = document.getElementById('modelBTU');
                     const modelPowerEl = document.getElementById('modelPower');
                     const modelAreaEl = document.getElementById('modelArea');
                     const largeRoomEl = document.getElementById('largeRoomBlock');
                     
+<<<<<<< HEAD
                     const lang = localStorage.getItem('language') || 'ru';
                     const t = translations[lang];
                     if (modelNameEl) modelNameEl.textContent = `${t.modelLabelSmall} ${recommended.model}`;
+=======
+                    if (modelNameEl) modelNameEl.textContent = `Модель ${recommended.model}`;
+>>>>>>> Add project docs and helper files
                     if (modelBTUEl) modelBTUEl.textContent = recommended.btu.toLocaleString();
                     if (modelPowerEl) modelPowerEl.textContent = recommended.kw.toFixed(1);
                     if (modelAreaEl) modelAreaEl.textContent = recommended.area;
                     if (largeRoomEl) largeRoomEl.style.display = 'none';
                 } else {
+<<<<<<< HEAD
+=======
+                    // Мощность > 10.6 кВт - нужны полупромышленные
+>>>>>>> Add project docs and helper files
                     let recommendedPower = semiIndustrialPowers[0];
                     for (let power of semiIndustrialPowers) {
                         if (power >= Q) {
@@ -954,9 +1094,17 @@
                         }
                     }
                     
+<<<<<<< HEAD
                     const semiIndustBTU = Math.round(recommendedPower * 3400);
                     const semiIndustArea = Math.round(recommendedPower * 10);
                     
+=======
+                    // Рассчитываем BTU и площадь
+                    const semiIndustBTU = Math.round(recommendedPower * 3400);
+                    const semiIndustArea = Math.round(recommendedPower * 10);
+                    
+                    // Display Results
+>>>>>>> Add project docs and helper files
                     const modelNameEl = document.getElementById('modelName');
                     const modelBTUEl = document.getElementById('modelBTU');
                     const modelPowerEl = document.getElementById('modelPower');
@@ -965,13 +1113,18 @@
                     const largeRoomTextEl = document.getElementById('largeRoomText');
                     const semiPowerEl = document.getElementById('semiPower');
                     
+<<<<<<< HEAD
                     const lang2 = localStorage.getItem('language') || 'ru';
                     const t2 = translations[lang2];
                     if (modelNameEl) modelNameEl.textContent = `${t2.modelLabelLarge} ${recommendedPower} кВт`;
+=======
+                    if (modelNameEl) modelNameEl.textContent = `Мощность ≥ ${recommendedPower} кВт`;
+>>>>>>> Add project docs and helper files
                     if (modelBTUEl) modelBTUEl.textContent = semiIndustBTU.toLocaleString();
                     if (modelPowerEl) modelPowerEl.textContent = recommendedPower.toFixed(1);
                     if (modelAreaEl) modelAreaEl.textContent = semiIndustArea;
                     if (largeRoomEl) largeRoomEl.style.display = 'block';
+<<<<<<< HEAD
                     
                     if (largeRoomTextEl) {
                         const lang = localStorage.getItem('language') || 'ru';
@@ -986,6 +1139,13 @@
                     if (semiPowerEl) semiPowerEl.textContent = recommendedPower.toFixed(1);
                 }
 
+=======
+                    if (largeRoomTextEl) largeRoomTextEl.textContent = `Для помещения площадью ${area} м² требуется мощность ${Q.toFixed(2)} кВт.`;
+                    if (semiPowerEl) semiPowerEl.textContent = recommendedPower.toFixed(1);
+                }
+
+                // Display common results
+>>>>>>> Add project docs and helper files
                 const resultQEl = document.getElementById('resultQ');
                 const resultRangeEl = document.getElementById('resultRange');
                 const calcDetailsEl = document.getElementById('calcDetails');
@@ -993,6 +1153,10 @@
                 if (resultQEl) resultQEl.textContent = Q.toFixed(2);
                 if (resultRangeEl) resultRangeEl.textContent = `${Q_min.toFixed(2)} - ${Q_max.toFixed(2)}`;
 
+<<<<<<< HEAD
+=======
+                // Calculation Details - Store both languages
+>>>>>>> Add project docs and helper files
                 const calcDetailsRu = `Q₁ (помещение) = ${area} × ${height} × ${sunlight} / 1000 = ${Q1.toFixed(2)} кВт\nQ₂ (люди) = ${people} × ${activity} = ${Q2.toFixed(2)} кВт\nQ₃ (техника) = ${Q3.toFixed(2)} кВт\n\nQ = ${Q.toFixed(2)} кВт\n\nДиапазон: ${Q_min.toFixed(2)} - ${Q_max.toFixed(2)} кВт`;
                 const calcDetailsEn = `Q₁ (room) = ${area} × ${height} × ${sunlight} / 1000 = ${Q1.toFixed(2)} kW\nQ₂ (people) = ${people} × ${activity} = ${Q2.toFixed(2)} kW\nQ₃ (devices) = ${Q3.toFixed(2)} kW\n\nQ = ${Q.toFixed(2)} kW\n\nRange: ${Q_min.toFixed(2)} - ${Q_max.toFixed(2)} kW`;
                 
@@ -1003,6 +1167,10 @@
                     calcDetailsEl.textContent = lang === 'ru' ? calcDetailsRu : calcDetailsEn;
                 }
 
+<<<<<<< HEAD
+=======
+                // Трекинг завершение расчета
+>>>>>>> Add project docs and helper files
                 trackEvent('calculation_completed', { result_power_kw: Q.toFixed(2), area });
 
                 switchScreen('results');
@@ -1026,6 +1194,10 @@
             content.classList.toggle('active');
         }
 
+<<<<<<< HEAD
+=======
+        // Function to update accordion content on language switch
+>>>>>>> Add project docs and helper files
         function updateAccordionContent(lang) {
             const calcDetailsEl = document.getElementById('calcDetails');
             if (calcDetailsEl) {
@@ -1038,12 +1210,17 @@
             }
         }
 
+<<<<<<< HEAD
+=======
+        // Override switchLanguage to update accordion
+>>>>>>> Add project docs and helper files
         const originalSwitchLanguage = switchLanguage;
         switchLanguage = function(lang) {
             originalSwitchLanguage(lang);
             updateAccordionContent(lang);
         };
 
+<<<<<<< HEAD
         const savedLang = localStorage.getItem('language') || 'ru';
         updateLanguage(savedLang);
         
@@ -1052,8 +1229,17 @@
             const ruBtn = document.querySelector("[onclick=\"switchLanguage('ru')\"]");
             if (ruBtn) ruBtn.classList.add('active');
         });
+=======
+        // Initialize
+        const savedLang = localStorage.getItem('language') || 'ru';
+        updateLanguage(savedLang);
+>>>>>>> Add project docs and helper files
         tg.ready();
         trackEvent('aircalc_opened', { timestamp: new Date().toISOString() });
     </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> Add project docs and helper files
