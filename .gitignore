@@ -2,7 +2,13 @@ __pycache__/
 *.pyc
 .DS_Store
 events.log
+<<<<<<< HEAD
 # Ð½Ðµ ÐºÐ¾Ð¼Ð¼Ð¸Ñ‚Ð¸Ð¼ ÑÐµÐºÑ€ÐµÑ‚Ñ‹ Ð¸ Ð»Ð¾Ð³Ð¸
+=======
+
+
+# íå êîììèòèì ñåêðåòû è ëîãè
+>>>>>>> Protect secrets: use .env and update .gitignore
 .env
 *.env
 aircalcevents.log
