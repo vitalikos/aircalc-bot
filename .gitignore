@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 events.log
+# не коммитим секреты и логи
+.env
+*.env
+aircalcevents.log
