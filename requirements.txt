@@ -1,5 +1,3 @@
 flask==2.3.0
-gunicorn==21.0.0
 pytelegrambotapi
 requests
-gunicorn==21.0.0
