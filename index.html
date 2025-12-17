@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirCalc — Калькулятор мощности кондиционера онлайн</title>
+    <meta name="description" content="Быстрый расчет мощности кондиционера для квартиры и офиса. Определите нужную модель по площади и параметрам помещения за 2 минуты.">
+    <meta name="theme-color" content="#0EA5E9">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0EA5E9;
+            --secondary: #06B6D4;
+            --accent: #14B8A6;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --bg-primary: #E0F2FE;
+            --bg-secondary: #CFFAFE;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .language-switcher {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            padding: 8px 12px;
+            border: 2px solid var(--primary);
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary);
+        }
+
+        .screen {
+            display: none;
+            padding: 40px 20px;
+            min-height: 100vh;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .welcome-screen {
+            background: linear-gradient(135deg, #E0F2FE 0%, #CFFAFE 100%);
+            text-align: center;
+            padding: 60px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            gap: 30px;
+        }
+
+        .welcome-logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .welcome-subtitle {
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 18px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-primary:active {
+            filter: brightness(0.95);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(14, 165, 233, 0.1);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="range"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: 0.3s ease;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .radio-option:hover {
+            background: rgba(14, 165, 233, 0.05);
+            border-color: var(--primary);
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .checkbox-option:hover {
+            background: rgba(14, 165, 233, 0.05);
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .result-block {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(20, 184, 166, 0.1));
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .result-model {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .result-details {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .result-details p {
+            margin-bottom: 6px;
+        }
+
+        .recommendation-text {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        .tips-block {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .tips-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .tips-list {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .tips-list li {
+            margin-bottom: 6px;
+            margin-left: 20px;
+        }
+
+        .accordion {
+            margin-top: 16px;
+        }
+
+        .accordion-button {
+            width: 100%;
+            padding: 12px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary);
+            transition: 0.3s ease;
+        }
+
+        .accordion-button:hover {
+            background: rgba(14, 165, 233, 0.15);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 12px;
+            background: rgba(14, 165, 233, 0.05);
+            border-left: 2px solid var(--primary);
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(14, 165, 233, 0.2);
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .welcome-screen {
+                padding: 40px 20px;
+            }
+
+            .welcome-logo {
+                font-size: 60px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="language-switcher">
+    <button class="lang-btn active" data-lang="ru" onclick="switchLanguage('ru')">🇷🇺 РУ</button>
+    <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">🇬🇧 EN</button>
+</div>
+
+    <div class="app-container">
+        <div class="screen active welcome-screen" id="welcome">
+            <div class="welcome-logo">❄️</div>
+            <div class="welcome-title" id="welcomeTitle">🌊 AirCalc</div>
+            <div class="welcome-subtitle" id="welcomeSubtitle">Расчет мощности кондиционера</div>
+            <div class="welcome-description" id="welcomeDesc">Профессиональный калькулятор поможет вам выбрать идеальную модель кондиционера для вашего помещения</div>
+            <button class="btn btn-primary" onclick="switchScreen('calculator')" id="welcomeBtn">Начать расчет</button>
+        </div>
+
+        <div class="screen" id="calculator">
+            <h1 style="font-size: 24px; margin-bottom: 20px; text-align: center;" id="calcTitle">📋 Расчет мощности</h1>
+
+            <div class="card">
+                <div class="card-title" id="roomParamsLabel">📐 Параметры помещения</div>
+                <div class="input-group">
+                    <label id="areaLabel">Площадь помещения (м²)</label>
+                    <input type="number" id="area" placeholder="например: 26" min="1" max="500" value="26">
+                </div>
+                <div class="input-group">
+                    <label id="heightLabel">Высота потолка (м)</label>
+                    <input type="number" id="height" placeholder="например: 2.7" min="1" max="10" step="0.1" value="2.75">
+                </div>
+                <div class="input-group">
+                    <label id="sunlightLabel">☀️ Освещенность</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="sunlight" value="30" checked>
+                            <span id="sunOpt1">Затененное (окна на север)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="sunlight" value="35">
+                            <span id="sunOpt2">Среднее (окна на восток/запад)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="sunlight" value="40">
+                            <span id="sunOpt3">Яркое (окна на юг)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="peopleLabel">👥 Люди в помещении</div>
+                <div class="input-group">
+                    <label><span id="peopleCountLabel">Количество людей:</span> <span id="peopleCount">2</span></label>
+                    <input type="range" id="people" min="0" max="20" value="2" style="width: 100%; cursor: pointer;">
+                </div>
+                <div class="input-group">
+                    <label id="activityLabel">🚶 Уровень активности</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="0.1">
+                            <span id="actOpt1">😴 Низкая (отдых) - 0.1 кВт</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="0.13" checked>
+                            <span id="actOpt2">🚶 Средняя (дом) - 0.13 кВт</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="0.15">
+                            <span id="actOpt3">💼 Высокая (офис) - 0.15 кВт</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="0.2">
+                            <span id="actOpt4">🏃 Очень высокая (спорт) - 0.2 кВт</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="devicesLabel">🔧 Бытовая техника</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="device" data-power="0.3">
+                        <span id="devComp">💻 Компьютер (+0.3 кВт)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="device" data-power="0.2">
+                        <span id="devTV">📺 Телевизор (+0.2 кВт)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="device" data-power="0.05">
+                        <span id="devFridge">❄️ Холодильник (+0.05 кВт)</span>
+                    </label>
+                </div>
+                <div class="input-group" style="margin-top: 12px;">
+                    <label id="otherPowerLabel">Другая техника (Вт)</label>
+                    <input type="number" id="otherPower" placeholder="например: 100" min="0" value="0">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="factorsLabel">➕ Дополнительные факторы</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="factor" data-factor="top_floor" data-multiplier="0.15">
+                        <span id="factFloor">🏢 Верхний этаж (+15%)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="factor" data-factor="corner" data-multiplier="0.10">
+                        <span id="factCorner">📐 Угловая комната (+10%)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="factor" data-factor="kitchen" data-multiplier="0.20">
+                        <span id="factKitchen">🍳 Кухня (+20%)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="factor" data-factor="windows" data-multiplier="0.15">
+                        <span id="factWindows">🪟 Большое остекление (+15%)</span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="calculate()" style="margin-top: 20px;" id="calcBtn">Рассчитать</button>
+        </div>
+
+        <div class="screen" id="results">
+            <h1 style="font-size: 24px; margin-bottom: 20px; text-align: center;" id="resultsTitle">📊 Результаты расчета</h1>
+
+            <div class="result-block">
+                <div class="result-title" id="recModelLabel">✅ РЕКОМЕНДУЕМАЯ МОДЕЛЬ</div>
+                <div class="result-model" id="modelName">Модель 24</div>
+                <div class="result-details" id="modelDetails">
+                    <p><strong id="btuLabel">BTU:</strong> <span id="modelBTU">24000</span></p>
+                    <p><strong id="powerLabel">Мощность:</strong> <span id="modelPower">7.0</span> <span id="kwUnit">кВт</span></p>
+                    <p><strong id="areaRangeLabel">Для площадей:</strong> до <span id="modelArea">70</span> м²</p>
+                </div>
+
+                <div class="result-details" style="margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 12px;">
+                    <p id="yourCalcLabelContainer"><strong id="yourCalcLabel">📊 Ваш расчет:</strong></p>
+                    <p id="reqPowerLabelContainer"><span id="reqPowerLabelText">Требуемая мощность:</span> <strong><span id="resultQ">6.82</span> <span id="kwUnit2">кВт</span></strong></p>
+                    <p id="recRangeLabelContainer"><span id="recRangeLabelText">Рекомендуемый диапазон:</span> <strong><span id="resultRange">6.48 - 7.84</span> <span id="kwUnit3">кВт</span></strong></p>
+                </div>
+
+                <div class="recommendation-text" id="recText">
+                    ✓ Эта модель подходит для Ваших условий. Для точного расчета мощности, пожалуйста, обратитесь к специалистам.
+                </div>
+            </div>
+
+            <div id="largeRoomBlock" style="display: none;">
+                <div class="result-block">
+                    <div class="result-title" id="largeRoomLabel">⚠️ РЕКОМЕНДАЦИЯ ДЛЯ БОЛЬШОГО ПОМЕЩЕНИЯ</div>
+                    <div class="result-details" id="largeRoomDetails">
+                        <p id="largeRoomText"></p>
+                        <p style="margin-top: 12px; font-weight: 600;"><span id="recPowerLabel2">Рекомендуемая мощность:</span></p>
+                        <p style="margin-top: 6px;"><span id="semiPower">14</span> <span id="kwUnit4">кВт</span></p>
+                        <p style="margin-top: 12px; font-size: 14px; line-height: 1.6; color: #c00;" id="semiIndText">⚠️ Бытовых настенных кондиционеров такой мощности не бывает.</p>
+                        <p style="margin-top: 8px; font-size: 14px; line-height: 1.6;" id="semiIndRec">Рекомендуем рассмотреть полупромышленные кондиционеры соответствующей мощности: канальные, кассетные, колонные или напольно-потолочные типы.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion">
+                <button class="accordion-button" onclick="toggleAccordion()" id="calcDetailsBtn">▼ Как мы рассчитали?</button>
+                <div class="accordion-content" id="calcDetails" data-lang="ru"></div>
+            </div>
+
+            <div class="tips-block">
+                <div class="tips-title" id="tipsLabel">💡 РЕКОМЕНДАЦИИ ЭКСПЕРТОВ:</div>
+                <ul class="tips-list">
+                    <li id="tip1">Внегласное правило: в среднем 1 кВт на 10 м² площади</li>
+                    <li id="tip2">Запас мощности 10-15% компенсирует экстремальную жару</li>
+                    <li id="tip3">Для кухни выбирайте на 20-30% мощнее обычного</li>
+                    <li id="tip4">Верхний этаж и угловые комнаты требуют больше мощности</li>
+                    <li id="tip5">Большое остекление может потребовать дополнительного запаса</li>
+                </ul>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="switchScreen('calculator')" id="newCalcBtn">Новый расчет</button>
+                <button class="btn btn-primary" onclick="shareResult()" id="shareBtn">Поделиться результатом</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            ru: {
+                yourCalcLabel: '📊 Ваш расчет:',
+                reqPowerLabelText: 'Требуемая мощность:',
+                recRangeLabelText: 'Рекомендуемый диапазон:',
+                modelLabelSmall: 'Модель',
+                modelLabelLarge: 'Мощность ≥',
+                welcomeTitle: '🌊 AirCalc',
+                welcomeSubtitle: 'Расчет мощности кондиционера',
+                welcomeDesc: 'Профессиональный калькулятор поможет вам выбрать идеальную модель кондиционера для вашего помещения',
+                welcomeBtn: 'Начать расчет',
+                calcTitle: '📋 Расчет мощности',
+                roomParams: '📐 Параметры помещения',
+                areaLabel: 'Площадь помещения (м²)',
+                areaPlaceholder: 'например: 26',
+                heightLabel: 'Высота потолка (м)',
+                heightPlaceholder: 'например: 2.7',
+                sunlightLabel: '☀️ Освещенность',
+                sunOpt1: 'Затененное (окна на север)',
+                sunOpt2: 'Среднее (окна на восток/запад)',
+                sunOpt3: 'Яркое (окна на юг)',
+                peopleLabel: '👥 Люди в помещении',
+                peopleCountLabel: 'Количество людей:',
+                activityLabel: '🚶 Уровень активности',
+                actOpt1: '😴 Низкая (отдых) - 0.1 кВт',
+                actOpt2: '🚶 Средняя (дом) - 0.13 кВт',
+                actOpt3: '💼 Высокая (офис) - 0.15 кВт',
+                actOpt4: '🏃 Очень высокая (спорт) - 0.2 кВт',
+                devicesLabel: '🔧 Бытовая техника',
+                devComp: '💻 Компьютер (+0.3 кВт)',
+                devTV: '📺 Телевизор (+0.2 кВт)',
+                devFridge: '❄️ Холодильник (+0.05 кВт)',
+                otherPowerLabel: 'Другая техника (Вт)',
+                otherPowerPlaceholder: 'например: 100',
+                factorsLabel: '➕ Дополнительные факторы',
+                factFloor: '🏢 Верхний этаж (+15%)',
+                factCorner: '📐 Угловая комната (+10%)',
+                factKitchen: '🍳 Кухня (+20%)',
+                factWindows: '🪟 Большое остекление (+15%)',
+                calcBtn: 'Рассчитать',
+                resultsTitle: '📊 Результаты расчета',
+                recModelLabel: '✅ РЕКОМЕНДУЕМАЯ МОДЕЛЬ',
+                btuLabel: 'BTU:',
+                powerLabel: 'Мощность:',
+                kwUnit: 'кВт',
+                areaRangeLabel: 'Для площадей:',
+                yourCalcLabel: '📊 Ваш расчет:',
+                reqPowerLabel: 'Требуемая мощность:',
+                recRangeLabel: 'Рекомендуемый диапазон:',
+                recText: '✓ Эта модель подходит для Ваших условий. Для точного расчета мощности, пожалуйста, обратитесь к специалистам.',
+                largeRoomLabel: '⚠️ РЕКОМЕНДАЦИЯ ДЛЯ БОЛЬШОГО ПОМЕЩЕНИЯ',
+                recPowerLabel2: 'Рекомендуемая мощность:',
+                largeRoomForAreaText: 'Для помещения площадью',
+                largeRoomRequiresPowerText: 'требуется мощность',
+                semiIndText: '⚠️ Бытовых настенных кондиционеров такой мощности не бывает.',
+                semiIndRec: 'Рекомендуем рассмотреть полупромышленные кондиционеры соответствующей мощности: канальные, кассетные, колонные или напольно-потолочные типы.',
+                calcDetailsBtn: '▼ Как мы рассчитали?',
+                tipsLabel: '💡 РЕКОМЕНДАЦИИ ЭКСПЕРТОВ:',
+                modelText: 'Модель',
+                powerText: 'Мощность ≥',
+                tip1: 'Внегласное правило: в среднем 1 кВт на 10 м² площади',
+                tip2: 'Запас мощности 10-15% компенсирует экстремальную жару',
+                tip3: 'Для кухни выбирайте на 20-30% мощнее обычного',
+                tip4: 'Верхний этаж и угловые комнаты требуют больше мощности',
+                tip5: 'Большое остекление может потребовать дополнительного запаса',
+                newCalcBtn: 'Новый расчет',
+                shareBtn: 'Поделиться результатом',
+            },
+            en: {
+                yourCalcLabel: '📊 Your Calculation:',
+                reqPowerLabelText: 'Required Power:',
+                recRangeLabelText: 'Recommended Range:',
+                modelLabelSmall: 'Model',
+                modelLabelLarge: 'Power ≥',
+                welcomeTitle: '🌊 AirCalc',
+                welcomeSubtitle: 'Air Conditioner Power Calculator',
+                welcomeDesc: 'A professional calculator to help you choose the ideal air conditioner model for your premises',
+                welcomeBtn: 'Start Calculation',
+                calcTitle: '📋 Power Calculation',
+                roomParams: '📐 Room Parameters',
+                areaLabel: 'Room Area (m²)',
+                areaPlaceholder: 'for example: 26',
+                heightLabel: 'Ceiling Height (m)',
+                heightPlaceholder: 'for example: 2.7',
+                sunlightLabel: '☀️ Illumination',
+                sunOpt1: 'Shaded (windows facing north)',
+                sunOpt2: 'Medium (windows facing east/west)',
+                sunOpt3: 'Bright (windows facing south)',
+                peopleLabel: '👥 People in Room',
+                peopleCountLabel: 'Number of people:',
+                activityLabel: '🚶 Activity Level',
+                actOpt1: '😴 Low (rest) - 0.1 kW',
+                actOpt2: '🚶 Medium (home) - 0.13 kW',
+                actOpt3: '💼 High (office) - 0.15 kW',
+                actOpt4: '🏃 Very high (sports) - 0.2 kW',
+                devicesLabel: '🔧 Household Appliances',
+                devComp: '💻 Computer (+0.3 kW)',
+                devTV: '📺 Television (+0.2 kW)',
+                devFridge: '❄️ Refrigerator (+0.05 kW)',
+                otherPowerLabel: 'Other appliances (W)',
+                otherPowerPlaceholder: 'for example: 100',
+                factorsLabel: '➕ Additional Factors',
+                factFloor: '🏢 Top Floor (+15%)',
+                factCorner: '📐 Corner Room (+10%)',
+                factKitchen: '🍳 Kitchen (+20%)',
+                factWindows: '🪟 Large Windows (+15%)',
+                calcBtn: 'Calculate',
+                resultsTitle: '📊 Calculation Results',
+                recModelLabel: '✅ RECOMMENDED MODEL',
+                btuLabel: 'BTU:',
+                powerLabel: 'Power:',
+                kwUnit: 'kW',
+                areaRangeLabel: 'For areas:',
+                yourCalcLabel: '📊 Your Calculation:',
+                reqPowerLabel: 'Required Power:',
+                recRangeLabel: 'Recommended Range:',
+                largeRoomLabel: '⚠️ RECOMMENDATION FOR LARGE PREMISES',
+                recPowerLabel2: 'Recommended Power:',
+                largeRoomForAreaText: 'For a room with an area of',
+                largeRoomRequiresPowerText: 'required power',
+                semiIndText: '⚠️ Such power capacity wall-mounted air conditioners do not exist.',
+                semiIndRec: 'We recommend considering semi-industrial air conditioners of appropriate power: channel, cassette, column, or floor-ceiling types.',
+                calcDetailsBtn: '▼ How did we calculate?',
+                tipsLabel: '💡 EXPERT RECOMMENDATIONS:',
+                modelText: 'Model',
+                powerText: 'Power ≥',
+                tip1: 'General rule: approximately 1 kW per 10 m² of area',
+                tip2: 'Power margin of 10-15% compensates for extreme heat',
+                tip3: 'For kitchens, choose 20-30% more powerful than usual',
+                tip4: 'Top floors and corner rooms require more power',
+                tip5: 'Large windows may require additional power margin',
+                newCalcBtn: 'New Calculation',
+                shareBtn: 'Share Result',
+                recText: '✓ This model is suitable for your conditions. For accurate power calculation, please consult with specialists.',
+            }
+        };
+
+        function switchLanguage(lang) {
+            localStorage.setItem('language', lang);
+            updateLanguage(lang);
+        }
+
+        function updateLanguage(lang) {
+            const t = translations[lang];
+            const setText = (id, text) => {
+                const el = document.getElementById(id);
+                if (el && text) el.textContent = text;
+            };
+            const setPlaceholder = (id, text) => {
+                const el = document.getElementById(id);
+                if (el && text) el.placeholder = text;
+            };
+            
+            setText('powerLabel', t.powerLabel);
+            setText('welcomeTitle', t.welcomeTitle);
+            setText('welcomeSubtitle', t.welcomeSubtitle);
+            setText('welcomeDesc', t.welcomeDesc);
+            setText('welcomeBtn', t.welcomeBtn);
+            setText('calcTitle', t.calcTitle);
+            setText('roomParamsLabel', t.roomParams);
+            setText('areaLabel', t.areaLabel);
+            setPlaceholder('area', t.areaPlaceholder);
+            setText('heightLabel', t.heightLabel);
+            setPlaceholder('height', t.heightPlaceholder);
+            setText('sunlightLabel', t.sunlightLabel);
+            setText('sunOpt1', t.sunOpt1);
+            setText('sunOpt2', t.sunOpt2);
+            setText('sunOpt3', t.sunOpt3);
+            setText('peopleLabel', t.peopleLabel);
+            setText('peopleCountLabel', t.peopleCountLabel);
+            setText('activityLabel', t.activityLabel);
+            setText('actOpt1', t.actOpt1);
+            setText('actOpt2', t.actOpt2);
+            setText('actOpt3', t.actOpt3);
+            setText('actOpt4', t.actOpt4);
+            setText('devicesLabel', t.devicesLabel);
+            setText('devComp', t.devComp);
+            setText('devTV', t.devTV);
+            setText('devFridge', t.devFridge);
+            setText('otherPowerLabel', t.otherPowerLabel);
+            setPlaceholder('otherPower', t.otherPowerPlaceholder);
+            setText('factorsLabel', t.factorsLabel);
+            setText('factFloor', t.factFloor);
+            setText('factCorner', t.factCorner);
+            setText('factKitchen', t.factKitchen);
+            setText('factWindows', t.factWindows);
+            setText('calcBtn', t.calcBtn);
+            setText('resultsTitle', t.resultsTitle);
+            setText('recModelLabel', t.recModelLabel);
+            setText('btuLabel', t.btuLabel);
+            document.querySelectorAll('#kwUnit, #kwUnit2, #kwUnit3, #kwUnit4').forEach(el => {
+                if (el && t.kwUnit) el.textContent = t.kwUnit;
+            });
+            setText('areaRangeLabel', t.areaRangeLabel);
+            setText('yourCalcLabel', t.yourCalcLabel);
+            setText('reqPowerLabelText', t.reqPowerLabelText);
+            setText('recRangeLabelText', t.recRangeLabelText);
+            setText('recText', t.recText);
+            setText('largeRoomLabel', t.largeRoomLabel);
+            setText('recPowerLabel2', t.recPowerLabel2);
+            setText('modelText', t.modelText);
+            setText('powerText', t.powerText);
+            setText('semiIndText', t.semiIndText);
+            setText('semiIndRec', t.semiIndRec);
+            setText('calcDetailsBtn', t.calcDetailsBtn);
+            setText('tipsLabel', t.tipsLabel);
+            setText('tip1', t.tip1);
+            setText('tip2', t.tip2);
+            setText('tip3', t.tip3);
+            setText('tip4', t.tip4);
+            setText('tip5', t.tip5);
+            setText('newCalcBtn', t.newCalcBtn);
+            setText('shareBtn', t.shareBtn);
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn) btn.classList.remove('active');
+            });
+            const activeLangBtn = document.querySelector(`[onclick="switchLanguage('${lang}')"]`);
+            if (activeLangBtn) activeLangBtn.classList.add('active');
+
+            updateLargeRoomText(lang);
+        }
+
+        function updateLargeRoomText(lang) {
+            const largeRoomTextEl = document.getElementById('largeRoomText');
+            if (largeRoomTextEl && largeRoomTextEl.getAttribute('data-area')) {
+                const t = translations[lang];
+                const area = largeRoomTextEl.getAttribute('data-area');
+                const power = largeRoomTextEl.getAttribute('data-power');
+                const forArea = t.largeRoomForAreaText || 'Для помещения площадью';
+                const kwUnit = lang === 'ru' ? 'кВт' : 'kW';
+largeRoomTextEl.textContent = `${forArea} ${semiIndArea} м² ${requiresPower} ${recommendedPower} ${kwUnit}.`;
+
+            }
+        }
+
+        const acModelsBytovye = [
+            {marking: 20, model: 7, btu: 7000, kw: 2.1, area: 20},
+            {marking: 25, model: 9, btu: 9000, kw: 2.6, area: 25},
+            {marking: 35, model: 12, btu: 12000, kw: 3.5, area: 35},
+            {marking: 50, model: 18, btu: 18000, kw: 5.3, area: 50},
+            {marking: 71, model: 24, btu: 24000, kw: 7.0, area: 70},
+            {marking: 80, model: 28, btu: 28000, kw: 8.2, area: 80},
+            {marking: 100, model: 36, btu: 36000, kw: 10.6, area: 110}
+        ];
+
+        const semiIndustrialPowers = [12.3, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 28.0, 30.0, 36.0, 40.0, 48.0];
+
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function trackEvent(eventName, params = {}) {
+            console.log(`📊 Событие: ${eventName}`, params);
+            const eventData = {
+                event: eventName,
+                timestamp: new Date().toISOString(),
+                data: params,
+                userId: tg.initDataUnsafe?.user?.id || 'unknown',
+                username: tg.initDataUnsafe?.user?.username || 'unknown'
+            };
+            fetch('/webapp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(eventData)
+            }).catch(err => console.error('Tracking error:', err));
+            if (tg && tg.sendData) {
+                tg.sendData(JSON.stringify(eventData));
+            }
+        }
+
+        function switchScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenName).classList.add('active');
+            trackEvent('screen_switched', { screen: screenName });
+        }
+
+        document.getElementById('people').addEventListener('input', function() {
+            document.getElementById('peopleCount').textContent = this.value;
+        });
+
+        function calculate() {
+            try {
+                const areaEl = document.getElementById('area');
+                const heightEl = document.getElementById('height');
+                const sunlightEl = document.querySelector('input[name="sunlight"]:checked');
+                const peopleEl = document.getElementById('people');
+                const activityEl = document.querySelector('input[name="activity"]:checked');
+                const otherPowerEl = document.getElementById('otherPower');
+
+                if (!areaEl || !heightEl || !sunlightEl || !peopleEl || !activityEl || !otherPowerEl) {
+                    throw new Error('Missing required form elements');
+                }
+
+                const area = parseFloat(areaEl.value);
+                const height = parseFloat(heightEl.value);
+                const sunlight = parseFloat(sunlightEl.value);
+                const people = parseInt(peopleEl.value);
+                const activity = parseFloat(activityEl.value);
+                const otherPower = parseFloat(otherPowerEl.value) || 0;
+
+                if (isNaN(area) || isNaN(height) || isNaN(sunlight) || isNaN(people) || isNaN(activity)) {
+                    throw new Error('Invalid input values');
+                }
+
+                console.log('Calculation started:', { area, height, sunlight, people, activity, otherPower });
+                trackEvent('calculation_started', { area, height, people });
+
+                const Q1 = (area * height * sunlight) / 1000;
+                const Q2 = people * activity;
+                let Q3 = 0;
+                document.querySelectorAll('.device:checked').forEach(device => {
+                    Q3 += parseFloat(device.dataset.power);
+                });
+                Q3 += (otherPower * 0.3) / 1000;
+
+                let Q = Q1 + Q2 + Q3;
+                document.querySelectorAll('.factor:checked').forEach(factor => {
+                    Q *= (1 + parseFloat(factor.dataset.multiplier));
+                });
+
+                const Q_min = Q * 0.95;
+                const Q_max = Q * 1.15;
+
+                let recommended;
+
+                if (Q <= 10.6) {
+                    recommended = acModelsBytovye[0];
+                    for (let model of acModelsBytovye) {
+                        if (model.kw >= Q_min) {
+                            recommended = model;
+                            if (model.kw >= Q) break;
+                        }
+                    }
+                    
+                    const modelNameEl = document.getElementById('modelName');
+                    const modelBTUEl = document.getElementById('modelBTU');
+                    const modelPowerEl = document.getElementById('modelPower');
+                    const modelAreaEl = document.getElementById('modelArea');
+                    const largeRoomEl = document.getElementById('largeRoomBlock');
+                    
+                    const lang = localStorage.getItem('language') || 'ru';
+                    const t = translations[lang];
+                    if (modelNameEl) modelNameEl.textContent = `${t.modelLabelSmall} ${recommended.model}`;
+                    if (modelBTUEl) modelBTUEl.textContent = recommended.btu.toLocaleString();
+                    if (modelPowerEl) modelPowerEl.textContent = recommended.kw.toFixed(1);
+                    if (modelAreaEl) modelAreaEl.textContent = recommended.area;
+                    if (largeRoomEl) largeRoomEl.style.display = 'none';
+                } 
+				else {
+	let lang2 = localStorage.getItem('language') || 'ru';
+    let t2 = translations[lang2];
+                    let recommendedPower = semiIndustrialPowers[0];
+                    for (let power of semiIndustrialPowers) {
+                        if (power >= Q) {
+                            recommendedPower = power;
+                            break;
+                        }
+                    }
+                    
+                    const semiIndustBTU = Math.round(recommendedPower * 3400);
+                    const semiIndustArea = Math.round(recommendedPower * 10);
+                    
+                    const modelNameEl = document.getElementById('modelName');
+                    const modelBTUEl = document.getElementById('modelBTU');
+                    const modelPowerEl = document.getElementById('modelPower');
+                    const modelAreaEl = document.getElementById('modelArea');
+                    const largeRoomEl = document.getElementById('largeRoomBlock');
+                    const largeRoomTextEl = document.getElementById('largeRoomText');
+                    const semiPowerEl = document.getElementById('semiPower');
+                    
+                    lang2 = localStorage.getItem('language') || 'ru';
+					t2 = translations[lang2];
+                    const kwUnitHeader = lang2 === 'ru' ? 'кВт' : 'kW';
+if (modelNameEl) modelNameEl.textContent = `${t2.modelLabelLarge} ${recommendedPower} ${kwUnitHeader}`;
+                    if (modelBTUEl) modelBTUEl.textContent = semiIndustBTU.toLocaleString();
+                    if (modelPowerEl) modelPowerEl.textContent = recommendedPower.toFixed(1);
+                    if (modelAreaEl) modelAreaEl.textContent = semiIndustArea;
+                    if (largeRoomEl) largeRoomEl.style.display = 'block';
+                    
+                    if (largeRoomTextEl) {
+                        lang = localStorage.getItem('language') || 'ru';
+                        const t = translations[lang];
+                        const forArea = t.largeRoomForAreaText || 'Для помещения площадью';
+                        const requiresPower = t.largeRoomRequiresPowerText || 'требуется мощность';
+                        largeRoomTextEl.textContent = `${forArea} ${area} м² ${requiresPower} ${Q.toFixed(2)} кВт.`;
+                        largeRoomTextEl.setAttribute('data-area', area);
+                        largeRoomTextEl.setAttribute('data-power', Q.toFixed(2));
+                    }
+                    
+                    if (semiPowerEl) semiPowerEl.textContent = recommendedPower.toFixed(1);
+                }
+
+                const resultQEl = document.getElementById('resultQ');
+                const resultRangeEl = document.getElementById('resultRange');
+                const calcDetailsEl = document.getElementById('calcDetails');
+                
+                if (resultQEl) resultQEl.textContent = Q.toFixed(2);
+                if (resultRangeEl) resultRangeEl.textContent = `${Q_min.toFixed(2)} - ${Q_max.toFixed(2)}`;
+
+                const calcDetailsRu = `Q₁ (помещение) = ${area} × ${height} × ${sunlight} / 1000 = ${Q1.toFixed(2)} кВт\nQ₂ (люди) = ${people} × ${activity} = ${Q2.toFixed(2)} кВт\nQ₃ (техника) = ${Q3.toFixed(2)} кВт\n\nQ = ${Q.toFixed(2)} кВт\n\nДиапазон: ${Q_min.toFixed(2)} - ${Q_max.toFixed(2)} кВт`;
+                const calcDetailsEn = `Q₁ (room) = ${area} × ${height} × ${sunlight} / 1000 = ${Q1.toFixed(2)} kW\nQ₂ (people) = ${people} × ${activity} = ${Q2.toFixed(2)} kW\nQ₃ (devices) = ${Q3.toFixed(2)} kW\n\nQ = ${Q.toFixed(2)} kW\n\nRange: ${Q_min.toFixed(2)} - ${Q_max.toFixed(2)} kW`;
+                
+                if (calcDetailsEl) {
+                    calcDetailsEl.setAttribute('data-calc-ru', calcDetailsRu);
+                    calcDetailsEl.setAttribute('data-calc-en', calcDetailsEn);
+                    const lang = localStorage.getItem('language') || 'ru';
+                    calcDetailsEl.textContent = lang === 'ru' ? calcDetailsRu : calcDetailsEn;
+                }
+
+                trackEvent('calculation_completed', { result_power_kw: Q.toFixed(2), area });
+
+                switchScreen('results');
+            } catch (error) {
+                console.error('Calculate error:', error);
+                alert('❌ Ошибка при расчете: ' + error.message);
+            }
+        }
+
+async function shareResult() {
+    const text = generateShareText(); // здесь собираешь текст/ссылку результата
+
+    // 1. Если есть нативный share (iOS/Android)
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'AirCalc',
+                text: text
+            });
+            showToast('Ссылка отправлена через системное меню 🙂');
+            return;
+        } catch (e) {
+            console.log('Share canceled or failed', e);
+        }
+    }
+
+    // 2. Фолбэк: копирование в буфер
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            // Старый фолбэк через временное поле
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.setAttribute('readonly', '');
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+        }
+        showToast('Ссылка скопирована. Теперь нажми и удерживай поле ввода и выбери «Вставить».');
+    } catch (e) {
+        console.error('Clipboard error', e);
+        showToast('Не удалось скопировать, попробуй вручную.');
+    }
+}
+
+        function toggleAccordion() {
+            const content = document.getElementById('calcDetails');
+            content.classList.toggle('active');
+        }
+
+        function updateAccordionContent(lang) {
+            const calcDetailsEl = document.getElementById('calcDetails');
+            if (calcDetailsEl) {
+                const calcDetailsRu = calcDetailsEl.getAttribute('data-calc-ru');
+                const calcDetailsEn = calcDetailsEl.getAttribute('data-calc-en');
+                
+                if (calcDetailsRu && calcDetailsEn) {
+                    calcDetailsEl.textContent = lang === 'ru' ? calcDetailsRu : calcDetailsEn;
+                }
+            }
+        }
+
+        const originalSwitchLanguage = switchLanguage;
+        switchLanguage = function(lang) {
+            originalSwitchLanguage(lang);
+            updateAccordionContent(lang);
+        };
+
+        const savedLang = localStorage.getItem('language') || 'ru';
+        updateLanguage(savedLang);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            const ruBtn = document.querySelector("[onclick=\"switchLanguage('ru')\"]");
+            if (ruBtn) ruBtn.classList.add('active');
+        });
+        tg.ready();
+        trackEvent('aircalc_opened', { timestamp: new Date().toISOString() });
+    </script>
+	    <script>
+        // Telegram WebApp инициализация
+        const tg = window.Telegram?.WebApp || { expand: () => {}, ready: () => {} };
+        tg.expand?.();
+
+        // Переводы
+        const translations = {
+            ru: {
+                welcomeTitle: '🌊 AirCalc',
+                welcomeSubtitle: 'Расчет мощности кондиционера',
+                welcomeDesc: 'Профессиональный калькулятор поможет вам выбрать идеальную модель кондиционера',
+                welcomeBtn: 'Начать расчет',
+                calcBtn: 'Рассчитать',
+                newCalcBtn: 'Новый расчет',
+                shareBtn: 'Поделиться результатом',
+            },
+            en: {
+                welcomeTitle: '🌊 AirCalc',
+                welcomeSubtitle: 'Air Conditioner Power Calculator',
+                welcomeDesc: 'A professional calculator to help choose the ideal air conditioner',
+                welcomeBtn: 'Start Calculation',
+                calcBtn: 'Calculate',
+                newCalcBtn: 'New Calculation',
+                shareBtn: 'Share Result',
+            }
+        };
+
+        let currentLang = localStorage.getItem('language') || 'ru';
+
+        // Переключение экранов
+        function switchScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenName);
+            if (target) target.classList.add('active');
+            console.log(`✅ Экран переключен на: ${screenName}`);
+        }
+
+        // Переключение языка
+function switchLanguage(lang) {
+    try {
+        localStorage.setItem('language', lang);
+        console.log('✅ Язык переключен на:', lang);
+        
+        // Обновляем активную кнопку БЕЗ event.target
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Находим кнопку по data-lang атрибуту и делаем её активной
+        const activeLangBtn = document.querySelector(`[data-lang="${lang}"]`);
+        if (activeLangBtn) {
+            activeLangBtn.classList.add('active');
+        }
+
+        // Перезагружаем страницу
+        window.location.reload();
+    } catch(e) {
+        console.error('Ошибка switchLanguage:', e);
+    }
+}
+
+        // Функция расчета мощности
+        function calculate() {
+            try {
+                const area = parseFloat(document.getElementById('area').value) || 26;
+                const height = parseFloat(document.getElementById('height').value) || 2.75;
+                const sunlight = parseFloat(document.querySelector('input[name="sunlight"]:checked').value) || 30;
+                const people = parseInt(document.getElementById('people').value) || 2;
+                const activity = parseFloat(document.querySelector('input[name="activity"]:checked').value) || 0.13;
+                const otherPower = parseFloat(document.getElementById('otherPower').value) || 0;
+
+                // Базовые расчёты
+                const Q1 = (area * height * sunlight) / 1000;
+                const Q2 = people * activity;
+                
+                let Q3 = 0;
+                document.querySelectorAll('.device:checked').forEach(device => {
+                    Q3 += parseFloat(device.dataset.power) || 0;
+                });
+                Q3 += (otherPower * 0.3) / 1000;
+
+                let Q = Q1 + Q2 + Q3;
+
+                // Применяем дополнительные факторы
+                document.querySelectorAll('.factor:checked').forEach(factor => {
+                    Q *= (1 + (parseFloat(factor.dataset.multiplier) || 0));
+                });
+
+                const Q_min = Q * 0.95;
+                const Q_max = Q * 1.15;
+
+                console.log(`📊 Расчёт: Q = ${Q.toFixed(2)} кВт, диапазон: ${Q_min.toFixed(2)} - ${Q_max.toFixed(2)}`);
+
+                // Обновляем результаты
+                document.getElementById('resultQ').textContent = Q.toFixed(2);
+                document.getElementById('resultRange').textContent = `${Q_min.toFixed(2)} - ${Q_max.toFixed(2)}`;
+
+                // Выбираем модель
+                const models = [
+                    {model: 7, btu: 7000, kw: 2.1, area: 20},
+                    {model: 9, btu: 9000, kw: 2.6, area: 25},
+                    {model: 12, btu: 12000, kw: 3.5, area: 35},
+                    {model: 18, btu: 18000, kw: 5.3, area: 50},
+                    {model: 24, btu: 24000, kw: 7.0, area: 70},
+                    {model: 28, btu: 28000, kw: 8.2, area: 80},
+                    {model: 36, btu: 36000, kw: 10.6, area: 110}
+                ];
+
+                let recommended = models[0];
+                for (let m of models) {
+                    if (m.kw >= Q) {
+                        recommended = m;
+                        break;
+                    }
+                    recommended = m;
+                }
+
+                document.getElementById('modelName').textContent = `Модель ${recommended.model}`;
+                document.getElementById('modelBTU').textContent = recommended.btu.toLocaleString();
+                document.getElementById('modelPower').textContent = recommended.kw.toFixed(1);
+                document.getElementById('modelArea').textContent = recommended.area;
+
+                switchScreen('results');
+            } catch (error) {
+                console.error('Ошибка при расчёте:', error);
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+
+        // Обновляем слайдер людей
+        document.getElementById('people').addEventListener('input', function() {
+            document.getElementById('peopleCount').textContent = this.value;
+        });
+
+        // Функция поделиться
+        function shareResult() {
+            alert('✅ Результат скопирован!');
+            console.log('📤 Результат разделён');
+        }
+
+        // Аккордион
+        function toggleAccordion() {
+            const content = document.getElementById('calcDetails');
+            if (content) content.classList.toggle('active');
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Страница загружена');
+            
+            // Убеждаемся, что кнопки работают
+            const welcomeBtn = document.querySelector('[onclick*="switchScreen"]');
+            if (welcomeBtn) {
+                console.log('✅ Кнопка "Начать" найдена');
+            }
+        });
+
+        tg.ready?.();
+    </script>
+
+</body>
+</html>
