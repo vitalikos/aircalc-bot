@@ -1018,44 +1018,98 @@ if (modelNameEl) modelNameEl.textContent = `${t2.modelLabelLarge} ${recommendedP
         }
 
 async function shareResult() {
-    const text = generateShareText(); // здесь собираешь текст/ссылку результата
-
-    // 1. Если есть нативный share (iOS/Android)
-    if (navigator.share) {
-        try {
-            await navigator.share({
-                title: 'AirCalc',
-                text: text
-            });
-            showToast('Ссылка отправлена через системное меню 🙂');
-            return;
-        } catch (e) {
-            console.log('Share canceled or failed', e);
-        }
-    }
-
-    // 2. Фолбэк: копирование в буфер
+    const shareBtn = document.getElementById('shareBtn');
+    const originalText = shareBtn.textContent;
+    
     try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-        } else {
-            // Старый фолбэк через временное поле
-            const tempInput = document.createElement('textarea');
-            tempInput.value = text;
-            tempInput.setAttribute('readonly', '');
-            tempInput.style.position = 'absolute';
-            tempInput.style.left = '-9999px';
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-        }
-        showToast('Ссылка скопирована. Теперь нажми и удерживай поле ввода и выбери «Вставить».');
-    } catch (e) {
-        console.error('Clipboard error', e);
-        showToast('Не удалось скопировать, попробуй вручную.');
+        // Блокируем кнопку
+        shareBtn.disabled = true;
+        shareBtn.innerHTML = '⏳ Отправляю...';
+        shareBtn.style.opacity = '0.6';
+        
+        const text = generateShareText();
+        
+        // Таймаут 10 сек на всю операцию
+        const sharePromise = new Promise(async (resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('Share timeout (10s)'));
+            }, 10000);
+            
+            try {
+                // 1. Пытаемся нативный share (iOS/Android)
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'AirCalc',
+                            text: text
+                        });
+                        clearTimeout(timeout);
+                        showToast('✅ Отправлено через системное меню!');
+                        resolve();
+                        return;
+                    } catch (e) {
+                        console.log('Share canceled', e);
+                        // Продолжаем на фолбэк
+                    }
+                }
+                
+                // 2. Фолбэк: копируем в буфер
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    // Старый способ для браузеров без clipboard API
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = text;
+                    tempInput.setAttribute('readonly', '');
+                    tempInput.style.position = 'absolute';
+                    tempInput.style.left = '-9999px';
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+                
+                clearTimeout(timeout);
+                showToast('✅ Скопировано в буфер обмена!');
+                resolve();
+                
+            } catch (e) {
+                clearTimeout(timeout);
+                reject(e);
+            }
+        });
+        
+        await sharePromise;
+        
+        // ✅ Успешно
+        shareBtn.innerHTML = '✅ Готово!';
+        shareBtn.style.backgroundColor = '#10B981';
+        trackEvent('resultshared', { method: 'share', success: true });
+        
+        // Возвращаем кнопку через 2 сек
+        setTimeout(() => {
+            shareBtn.disabled = false;
+            shareBtn.textContent = originalText;
+            shareBtn.style.opacity = '1';
+            shareBtn.style.backgroundColor = '';
+        }, 2000);
+        
+    } catch (error) {
+        // ❌ Ошибка
+        console.error('Share error:', error);
+        shareBtn.disabled = false;
+        shareBtn.textContent = originalText;
+        shareBtn.style.opacity = '1';
+        
+        const errorMsg = error.message === 'Share timeout (10s)' 
+            ? '⏱️ Слишком долго ждали. Попробуй еще раз.'
+            : '❌ Ошибка при отправке. Попробуй еще раз.';
+        
+        showToast(errorMsg);
+        trackEvent('resultshared', { method: 'share', success: false, error: error.message });
     }
 }
+
 
         function toggleAccordion() {
             const content = document.getElementById('calcDetails');
