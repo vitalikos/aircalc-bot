@@ -1,14 +1,113 @@
-__pycache__/
-*.pyc
-.DS_Store
-events.log
-<<<<<<< HEAD
-# Ð½Ðµ ÐºÐ¾Ð¼Ð¼Ð¸Ñ‚Ð¸Ð¼ ÑÐµÐºÑ€ÐµÑ‚Ñ‹ Ð¸ Ð»Ð¾Ð³Ð¸
-=======
-
-
-# íå êîììèòèì ñåêðåòû è ëîãè
->>>>>>> Protect secrets: use .env and update .gitignore
+# Environment variables (NEVER commit your real tokens!)
 .env
+.env.local
+.env.*.local
 *.env
-aircalcevents.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+.env.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Logs
+*.log
+!.gitkeep
+aircalc_events.log
+events.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+._*
+
+# Production builds
+dist/
+build/
+
+# Node (if you add frontend tooling)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker (if you add containerization)
+.dockerignore
+Dockerfile
+docker-compose.override.yml
+
+# CI/CD
+.github/workflows/*.env
+.gitlab-ci.override.yml
+
+# SSH Keys
+*.pem
+*.key
+id_rsa*
+
+# Misc
+.vscode-settings.json
+*.orig
