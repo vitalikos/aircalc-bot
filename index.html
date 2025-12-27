@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirCalc — Калькулятор мощности кондиционера онлайн</title>
+    <meta name="description" content="Быстрый расчет мощности кондиционера для квартиры и офиса. Определите нужную модель по площади и параметрам помещения за 2 минуты.">
+    <meta name="theme-color" content="#0EA5E9">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary: #0EA5E9;
+            --secondary: #06B6D4;
+            --accent: #14B8A6;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --bg-primary: #E0F2FE;
+            --bg-secondary: #CFFAFE;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+        body {
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .language-switcher {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+        }
+        .lang-btn {
+            padding: 8px 12px;
+            border: 2px solid var(--primary);
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+        .lang-btn:hover {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+        .lang-btn.active {
+            background: var(--primary);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary);
+        }
+        .screen {
+            display: none;
+            padding: 40px 20px;
+            min-height: 100vh;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .screen.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .welcome-screen {
+            background: linear-gradient(135deg, #E0F2FE 0%, #CFFAFE 100%);
+            text-align: center;
+            padding: 60px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            gap: 30px;
+        }
+        .welcome-logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        .welcome-subtitle {
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 18px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .welcome-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(14, 165, 233, 0.1);
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-group {
+            margin-bottom: 12px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        input[type="number"],
+        input[type="text"],
+        input[type="range"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: 0.3s ease;
+        }
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .radio-option:hover {
+            background: rgba(14, 165, 233, 0.05);
+            border-color: var(--primary);
+        }
+        .radio-option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .checkbox-option:hover {
+            background: rgba(14, 165, 233, 0.05);
+        }
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        .result-block {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(20, 184, 166, 0.1));
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+        .result-model {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .result-details {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .result-details p {
+            margin-bottom: 6px;
+        }
+        .recommendation-text {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+        .tips-block {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        .tips-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .tips-list {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        .tips-list li {
+            margin-bottom: 6px;
+            margin-left: 20px;
+        }
+        .accordion {
+            margin-top: 16px;
+        }
+        .accordion-button {
+            width: 100%;
+            padding: 12px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary);
+            transition: 0.3s ease;
+        }
+        .accordion-button:hover {
+            background: rgba(14, 165, 233, 0.15);
+        }
+        .accordion-content {
+            display: none;
+            padding: 12px;
+            background: rgba(14, 165, 233, 0.05);
+            border-left: 2px solid var(--primary);
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .accordion-content.active {
+            display: block;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .button-group button {
+            flex: 1;
+        }
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+        .btn-primary:active {
+            filter: brightness(0.95);
+        }
+        .btn-secondary {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .btn-secondary:hover {
+            background: rgba(14, 165, 233, 0.2);
+        }
+        @media (max-width: 480px) {
+            .app-container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            .welcome-screen {
+                padding: 40px 20px;
+            }
+            .welcome-logo {
+                font-size: 60px;
+            }
+            .welcome-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-switcher">
+        <button class="lang-btn active" data-lang="ru" onclick="switchLanguage('ru')">🇷🇺 РУ</button>
+        <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">🇬🇧 EN</button>
+    </div>
+
+    <div class="app-container">
+        <div class="screen active welcome-screen" id="welcome">
+            <div class="welcome-logo">❄️</div>
+            <div class="welcome-title" id="welcomeTitle">🌊 AirCalc</div>
+            <div class="welcome-subtitle" id="welcomeSubtitle">Расчет мощности кондиционера</div>
+            <div class="welcome-description" id="welcomeDesc">Профессиональный калькулятор поможет вам выбрать идеальную модель кондиционера для вашего помещения</div>
+            <button class="btn btn-primary" onclick="switchScreen('calculator')" id="welcomeBtn">Начать расчет</button>
+        </div>
+
+        <div class="screen" id="calculator">
+            <h1 style="font-size: 24px; margin-bottom: 20px; text-align: center;" id="calcTitle">📋 Расчет мощности</h1>
+
+            <div class="card">
+                <div class="card-title" id="roomParamsLabel">📐 Параметры помещения</div>
+                <div class="input-group">
+                    <label id="areaLabel">Площадь помещения (м²)</label>
+                    <input type="number" id="area" placeholder="например: 26" min="1" max="500" value="26">
+                </div>
+                <div class="input-group">
+                    <label id="heightLabel">Высота потолка (м)</label>
+                    <input type="number" id="height" placeholder="например: 2.7" min="1" max="10" step="0.1" value="2.75">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="lightingLabel">☀️ Освещенность</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="lighting" value="30" checked> <span id="lightShaded">Затененное (окна на север)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="lighting" value="35"> <span id="lightMedium">Среднее (окна на восток/запад)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="lighting" value="40"> <span id="lightBright">Яркое (окна на юг)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="peopleLabel">👥 Люди в помещении</div>
+                <div class="input-group">
+                    <label><span id="peopleCountLabel">Количество людей:</span> <span id="peopleCount">2</span></label>
+                    <input type="range" id="people" min="0" max="20" value="2" style="width: 100%; cursor: pointer;">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="activityLabel">🏃 Уровень активности</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="activity" value="0.1" checked> <span id="actRest">Низкая (отдых) - 0.1 кВт</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="activity" value="0.13"> <span id="actHome">Средняя (дом) - 0.13 кВт</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="activity" value="0.15"> <span id="actOffice">Высокая (офис) - 0.15 кВт</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="activity" value="0.2"> <span id="actSport">Очень высокая (спорт) - 0.2 кВт</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="devicesLabel">🔧 Бытовая техника</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="device" data-power="0.3">
+                        <span id="devComp">💻 Компьютер (+0.3 кВт)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="device" data-power="0.2">
+                        <span id="devTV">📺 Телевизор (+0.2 кВт)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="device" data-power="0.05">
+                        <span id="devFridge">❄️ Холодильник (+0.05 кВт)</span>
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label id="devOtherLabel">⚙️ Другая техника (Вт)</label>
+                    <input type="number" id="devOtherInput" placeholder="например: 100" min="0" max="5000" value="0" step="10">
+                    <small id="devOtherHint" style="font-size: 12px; color: var(--text-secondary);">Укажите мощность в ваттах, будет автоматически переведено в кВт</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="additionalLabel">🌡️ Дополнительные факторы</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="additional-factor" data-percent="15">
+                        <span id="factTopFloor">🏢 Верхний этаж (+15%)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="additional-factor" data-percent="10">
+                        <span id="factCorner">📐 Угловая комната (+10%)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="additional-factor" data-percent="20">
+                        <span id="factKitchen">🍳 Кухня (+20%)</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" class="additional-factor" data-percent="15">
+                        <span id="factGlazing">🪟 Большое остекление (+15%)</span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="calculate()" style="margin-top: 20px;" id="calcBtn">Рассчитать</button>
+        </div>
+
+        <div class="screen" id="results">
+            <h1 style="font-size: 24px; margin-bottom: 20px; text-align: center;" id="resultsTitle">📊 Результаты расчета</h1>
+
+            <div class="result-block">
+                <div class="result-title" id="recModelLabel">✅ РЕКОМЕНДУЕМАЯ МОДЕЛЬ</div>
+                <div class="result-model" id="modelName">Модель 24</div>
+                <div class="result-details" id="modelDetails">
+                    <p><strong id="btuLabel">BTU:</strong> <span id="modelBTU">24000</span></p>
+                    <p><strong id="powerLabel">Мощность:</strong> <span id="modelPower">7.0</span> <span id="kwUnit">кВт</span></p>
+                    <p><strong id="areaRangeLabel">Для площадей:</strong> до <span id="modelArea">70</span> м²</p>
+                </div>
+                <div class="result-details" style="margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 12px;">
+                    <p><strong id="yourCalcLabel">📊 Ваш расчет:</strong></p>
+                    <p><span id="reqPowerLabelText">Требуемая мощность:</span> <strong><span id="resultQ">6.82</span> <span id="kwUnit2">кВт</span></strong></p>
+                    <p><span id="recRangeLabelText">Рекомендуемый диапазон:</span> <strong><span id="resultRange">6.48 - 7.84</span> <span id="kwUnit3">кВт</span></strong></p>
+                </div>
+            </div>
+
+            <div class="accordion">
+                <button class="accordion-button" onclick="toggleAccordion(this)" id="calcMethodBtn">📐 Как мы рассчитали?</button>
+                <div class="accordion-content" id="calcMethod">
+                    <p><strong id="calcMethodTitle">Формула расчета:</strong></p>
+                    <p id="calcFormula">Q = Q1 + Q2 + Q3 × (1 + A%)</p>
+                    <p style="margin-top: 10px;"><strong id="calcDetails">Где:</strong></p>
+                    <ul style="margin-left: 15px; font-size: 13px;">
+                        <li id="calcS">Q1 = S × H × K_солнца / 1000 (площадь и освещение)</li>
+                        <li id="calcH">Q2 = Люди × Активность (кВт на человека)</li>
+                        <li id="calcK">Q3 = Мощность техники (кВт)</li>
+                        <li id="calcP">K_солнца = 30 (север), 35 (восток/запад), 40 (юг)</li>
+                        <li id="calcA">A = дополнительные факторы (% от Q1+Q2+Q3)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tips-block">
+                <div class="tips-title" id="tipsLabel">💡 РЕКОМЕНДАЦИИ ЭКСПЕРТОВ:</div>
+                <ul class="tips-list">
+                    <li id="tip1">Внегласное правило: в среднем 1 кВт на 10 м² площади</li>
+                    <li id="tip2">Запас мощности 10-15% компенсирует экстремальную жару</li>
+                    <li id="tip3">Для кухни выбирайте на 20-30% мощнее обычного</li>
+                    <li id="tip4">Верхний этаж и угловые комнаты требуют больше мощности</li>
+                    <li id="tip5">Большое остекление может потребовать дополнительного запаса</li>
+                </ul>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="switchScreen('calculator')" id="newCalcBtn">Новый расчет</button>
+                <button class="btn btn-primary" onclick="shareResult()" id="shareBtn">Поделиться</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            ru: {
+                welcomeTitle: '🌊 AirCalc',
+                welcomeSubtitle: 'Расчет мощности кондиционера',
+                welcomeDesc: 'Профессиональный калькулятор поможет вам выбрать идеальную модель кондиционера',
+                welcomeBtn: 'Начать расчет',
+                calcTitle: '📋 Расчет мощности',
+                calcBtn: 'Рассчитать',
+                newCalcBtn: 'Новый расчет',
+                shareBtn: 'Поделиться',
+                resultsTitle: '📊 Результаты расчета',
+                tipsLabel: '💡 РЕКОМЕНДАЦИИ ЭКСПЕРТОВ:',
+            },
+            en: {
+                welcomeTitle: '🌊 AirCalc',
+                welcomeSubtitle: 'Air Conditioner Power Calculator',
+                welcomeDesc: 'A professional calculator to help choose the ideal air conditioner',
+                welcomeBtn: 'Start Calculation',
+                calcTitle: '📋 Power Calculation',
+                calcBtn: 'Calculate',
+                newCalcBtn: 'New Calculation',
+                shareBtn: 'Share',
+                resultsTitle: '📊 Results',
+                tipsLabel: '💡 EXPERT TIPS:',
+            }
+        };
+
+        let currentLang = localStorage.getItem('language') || 'ru';
+
+        function switchScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenName).classList.add('active');
+        }
+
+        function switchLanguage(lang) {
+            localStorage.setItem('language', lang);
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            updateAllText();
+        }
+
+        function updateAllText() {
+            // Welcome screen
+            document.getElementById('welcomeTitle').textContent = translations[currentLang].welcomeTitle;
+            document.getElementById('welcomeSubtitle').textContent = translations[currentLang].welcomeSubtitle;
+            document.getElementById('welcomeDesc').textContent = translations[currentLang].welcomeDesc;
+            document.getElementById('welcomeBtn').textContent = translations[currentLang].welcomeBtn;
+
+            // Calculator screen
+            document.getElementById('calcTitle').textContent = translations[currentLang].calcTitle;
+            document.getElementById('roomParamsLabel').textContent = '📐 ' + (currentLang === 'ru' ? 'Параметры помещения' : 'Room Parameters');
+            document.getElementById('areaLabel').textContent = currentLang === 'ru' ? 'Площадь помещения (м²)' : 'Room Area (m²)';
+            document.getElementById('heightLabel').textContent = currentLang === 'ru' ? 'Высота потолка (м)' : 'Ceiling Height (m)';
+            document.getElementById('lightingLabel').textContent = '☀️ ' + (currentLang === 'ru' ? 'Освещенность' : 'Sunlight');
+            document.getElementById('lightShaded').textContent = currentLang === 'ru' ? 'Затененное (окна на север)' : 'Shaded (windows facing north)';
+            document.getElementById('lightMedium').textContent = currentLang === 'ru' ? 'Среднее (окна на восток/запад)' : 'Medium (windows facing east/west)';
+            document.getElementById('lightBright').textContent = currentLang === 'ru' ? 'Яркое (окна на юг)' : 'Bright (windows facing south)';
+            document.getElementById('peopleLabel').textContent = '👥 ' + (currentLang === 'ru' ? 'Люди в помещении' : 'People in Room');
+            document.getElementById('peopleCountLabel').textContent = currentLang === 'ru' ? 'Количество людей:' : 'Number of people:';
+            document.getElementById('activityLabel').textContent = '🏃 ' + (currentLang === 'ru' ? 'Уровень активности' : 'Activity Level');
+            document.getElementById('actRest').textContent = currentLang === 'ru' ? 'Низкая (отдых) - 0.1 кВт' : 'Low (rest) - 0.1 kW';
+            document.getElementById('actHome').textContent = currentLang === 'ru' ? 'Средняя (дом) - 0.13 кВт' : 'Medium (home) - 0.13 kW';
+            document.getElementById('actOffice').textContent = currentLang === 'ru' ? 'Высокая (офис) - 0.15 кВт' : 'High (office) - 0.15 kW';
+            document.getElementById('actSport').textContent = currentLang === 'ru' ? 'Очень высокая (спорт) - 0.2 кВт' : 'Very high (sports) - 0.2 kW';
+            document.getElementById('devicesLabel').textContent = '🔧 ' + (currentLang === 'ru' ? 'Бытовая техника' : 'Appliances');
+            document.getElementById('devComp').textContent = '💻 ' + (currentLang === 'ru' ? 'Компьютер (+0.3 кВт)' : 'Computer (+0.3 kW)');
+            document.getElementById('devTV').textContent = '📺 ' + (currentLang === 'ru' ? 'Телевизор (+0.2 кВт)' : 'Television (+0.2 kW)');
+            document.getElementById('devFridge').textContent = '❄️ ' + (currentLang === 'ru' ? 'Холодильник (+0.05 кВт)' : 'Refrigerator (+0.05 kW)');
+            document.getElementById('devOtherLabel').textContent = currentLang === 'ru' ? '⚙️ Другая техника (Вт)' : '⚙️ Other appliances (W)';
+            document.getElementById('devOtherHint').textContent = currentLang === 'ru' ? 'Укажите мощность в ваттах, будет автоматически переведено в кВт' : 'Enter power in watts, will be automatically converted to kW';
+            document.getElementById('additionalLabel').textContent = (currentLang === 'ru' ? '🌡️ Дополнительные факторы' : '➕ Additional Factors');
+            document.getElementById('factTopFloor').textContent = '🏢 ' + (currentLang === 'ru' ? 'Верхний этаж (+15%)' : 'Top Floor (+15%)');
+            document.getElementById('factCorner').textContent = '📐 ' + (currentLang === 'ru' ? 'Угловая комната (+10%)' : 'Corner Room (+10%)');
+            document.getElementById('factKitchen').textContent = '🍳 ' + (currentLang === 'ru' ? 'Кухня (+20%)' : 'Kitchen (+20%)');
+            document.getElementById('factGlazing').textContent = '🪟 ' + (currentLang === 'ru' ? 'Большое остекление (+15%)' : 'Large Windows (+15%)');
+            document.getElementById('calcBtn').textContent = translations[currentLang].calcBtn;
+
+            // Results screen
+            document.getElementById('resultsTitle').textContent = translations[currentLang].resultsTitle;
+            document.getElementById('recModelLabel').textContent = currentLang === 'ru' ? '✅ РЕКОМЕНДУЕМАЯ МОДЕЛЬ' : '✅ RECOMMENDED MODEL';
+            document.getElementById('btuLabel').textContent = currentLang === 'ru' ? 'BTU:' : 'BTU:';
+            document.getElementById('powerLabel').textContent = currentLang === 'ru' ? 'Мощность:' : 'Power:';
+            document.getElementById('kwUnit').textContent = currentLang === 'ru' ? 'кВт' : 'kW';
+            document.getElementById('kwUnit2').textContent = currentLang === 'ru' ? 'кВт' : 'kW';
+            document.getElementById('kwUnit3').textContent = currentLang === 'ru' ? 'кВт' : 'kW';
+            document.getElementById('areaRangeLabel').textContent = currentLang === 'ru' ? 'Для площадей:' : 'For areas:';
+            document.getElementById('yourCalcLabel').textContent = currentLang === 'ru' ? '📊 Ваш расчет:' : '📊 Your Calculation:';
+            document.getElementById('reqPowerLabelText').textContent = currentLang === 'ru' ? 'Требуемая мощность:' : 'Required Power:';
+            document.getElementById('recRangeLabelText').textContent = currentLang === 'ru' ? 'Рекомендуемый диапазон:' : 'Recommended Range:';
+            document.getElementById('calcMethodBtn').textContent = currentLang === 'ru' ? '📐 Как мы рассчитали?' : '📐 How did we calculate?';
+            document.getElementById('calcMethodTitle').textContent = currentLang === 'ru' ? 'Формула расчета:' : 'Calculation Formula:';
+            document.getElementById('calcFormula').textContent = 'Q = Q1 + Q2 + Q3 × (1 + A%)';
+            document.getElementById('calcDetails').textContent = currentLang === 'ru' ? 'Где:' : 'Where:';
+            document.getElementById('calcS').textContent = currentLang === 'ru' ? 'Q1 = S × H × K_солнца / 1000 (площадь и освещение)' : 'Q1 = S × H × K_sun / 1000 (room area and sunlight)';
+            document.getElementById('calcH').textContent = currentLang === 'ru' ? 'Q2 = Люди × Активность (кВт на человека)' : 'Q2 = People × Activity (kW per person)';
+            document.getElementById('calcK').textContent = currentLang === 'ru' ? 'Q3 = Мощность техники (кВт)' : 'Q3 = Appliances power (kW)';
+            document.getElementById('calcP').textContent = currentLang === 'ru' ? 'K_солнца = 30 (север), 35 (восток/запад), 40 (юг)' : 'K_sun = 30 (north), 35 (east/west), 40 (south)';
+            document.getElementById('calcA').textContent = currentLang === 'ru' ? 'A = дополнительные факторы (% от Q1+Q2+Q3)' : 'A = additional factors (% of Q1+Q2+Q3)';
+            document.getElementById('tipsLabel').textContent = translations[currentLang].tipsLabel;
+
+            // Update tips
+            const tips = {
+                ru: [
+                    'Внегласное правило: в среднем 1 кВт на 10 м² площади',
+                    'Запас мощности 10-15% компенсирует экстремальную жару',
+                    'Для кухни выбирайте на 20-30% мощнее обычного',
+                    'Верхний этаж и угловые комнаты требуют больше мощности',
+                    'Большое остекление может потребовать дополнительного запаса'
+                ],
+                en: [
+                    'Unspoken rule: on average 1 kW per 10 m² of area',
+                    'Power reserve of 10-15% compensates for extreme heat',
+                    'For kitchens, choose 20-30% more powerful',
+                    'Upper floors and corner rooms require more power',
+                    'Large windows may require additional power reserve'
+                ]
+            };
+
+            for (let i = 1; i <= 5; i++) {
+                const el = document.getElementById(`tip${i}`);
+                if (el) el.textContent = tips[currentLang][i - 1];
+            }
+
+            document.getElementById('newCalcBtn').textContent = translations[currentLang].newCalcBtn;
+            document.getElementById('shareBtn').textContent = translations[currentLang].shareBtn;
+        }
+
+        document.getElementById('people').addEventListener('input', function() {
+            document.getElementById('peopleCount').textContent = this.value;
+        });
+
+        function calculate() {
+            const area = parseFloat(document.getElementById('area').value) || 26;
+            const height = parseFloat(document.getElementById('height').value) || 2.75;
+            const people = parseInt(document.getElementById('people').value) || 2;
+            
+            // Бытовая техника
+            let devicePower = 0;
+            document.querySelectorAll('.device:checked').forEach(dev => {
+                devicePower += parseFloat(dev.dataset.power) || 0;
+            });
+            
+            // Другая техника (вводится пользователем в Вт, переводим в кВт)
+            const otherPower = (parseFloat(document.getElementById('devOtherInput').value) || 0) / 1000;
+            
+            // Солнечный коэффициент (правильные значения: 30, 35, 40)
+            const sunlightFactor = parseFloat(document.querySelector('input[name="lighting"]:checked').value) || 35;
+            
+            // Уровень активности (уже в кВт на человека)
+            const activityPerPerson = parseFloat(document.querySelector('input[name="activity"]:checked').value) || 0.13;
+            
+            // Дополнительные факторы (в процентах)
+            let additionalPercent = 0;
+            document.querySelectorAll('.additional-factor:checked').forEach(factor => {
+                additionalPercent += parseFloat(factor.dataset.percent) || 0;
+            });
+
+            // ПРАВИЛЬНАЯ ФОРМУЛА: Q = Q1 + Q2 + Q3 × (1 + A%)
+            // Q1 = Площадь + высота + солнечный фактор
+            const Q1 = (area * height * sunlightFactor) / 1000;
+            
+            // Q2 = Мощность от людей
+            const Q2 = people * activityPerPerson;
+            
+            // Q3 = Мощность техники
+            const Q3 = devicePower + otherPower;
+            
+            // Сумма без дополнительных факторов
+            const subtotal = Q1 + Q2 + Q3;
+            
+            // Применяем дополнительные факторы как процент к общей сумме
+            const Q = subtotal * (1 + additionalPercent / 100);
+            const Q_min = Q * 0.95;
+            const Q_max = Q * 1.15;
+
+            document.getElementById('resultQ').textContent = Q.toFixed(2);
+            document.getElementById('resultRange').textContent = `${Q_min.toFixed(2)} - ${Q_max.toFixed(2)}`;
+
+            const models = [
+                {model: 7, btu: 7000, kw: 2.1, area: 20},
+                {model: 9, btu: 9000, kw: 2.6, area: 25},
+                {model: 12, btu: 12000, kw: 3.5, area: 35},
+                {model: 18, btu: 18000, kw: 5.3, area: 50},
+                {model: 24, btu: 24000, kw: 7.0, area: 70},
+                {model: 28, btu: 28000, kw: 8.2, area: 80},
+            ];
+
+            let recommended = models[0];
+            for (let m of models) {
+                if (m.kw >= Q) {
+                    recommended = m;
+                    break;
+                }
+                recommended = m;
+            }
+
+            document.getElementById('modelName').textContent = currentLang === 'ru' ? `Модель ${recommended.model}` : `Model ${recommended.model}`;
+            document.getElementById('modelBTU').textContent = recommended.btu.toLocaleString();
+            document.getElementById('modelPower').textContent = recommended.kw.toFixed(1);
+            document.getElementById('modelArea').textContent = recommended.area;
+
+            switchScreen('results');
+        }
+
+        function toggleAccordion(button) {
+            const content = button.nextElementSibling;
+            content.classList.toggle('active');
+            button.style.background = content.classList.contains('active') 
+                ? 'rgba(14, 165, 233, 0.2)' 
+                : 'rgba(14, 165, 233, 0.1)';
+        }
+
+        function shareResult() {
+            const powerText = currentLang === 'ru' ? 'мощность' : 'power';
+            const modelText = currentLang === 'ru' ? 'Модель' : 'Model';
+            const text = `AirCalc: ${powerText} ${document.getElementById('resultQ').textContent} кВт (${document.getElementById('resultRange').textContent} кВт). ${modelText}: ${document.getElementById('modelName').textContent}`;
+            navigator.clipboard.writeText(text).then(() => {
+                alert(currentLang === 'ru' ? '✅ Скопировано в буфер обмена!' : '✅ Copied to clipboard!');
+                const tg = window.Telegram?.WebApp;
+                if (tg) {
+                    tg.sendData(JSON.stringify({
+                        action: 'share_result',
+                        power: document.getElementById('resultQ').textContent,
+                        range: document.getElementById('resultRange').textContent,
+                        model: document.getElementById('modelName').textContent,
+                        timestamp: new Date().toISOString()
+                    }));
+                }
+            }).catch(() => {
+                alert(currentLang === 'ru' ? '❌ Ошибка копирования' : '❌ Copy error');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeLangBtn = document.querySelector(`[data-lang="${currentLang}"]`);
+            if (activeLangBtn) activeLangBtn.classList.add('active');
+        });
+
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.expand?.();
+        }
+    </script>
+</body>
+</html>
